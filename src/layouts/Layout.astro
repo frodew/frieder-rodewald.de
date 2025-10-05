@@ -1,0 +1,522 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "Frieder Rodewald - PhD Student in Social Data Science",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Frieder Rodewald" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/logo.gif" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <title>{title}</title>
+    <style>
+      @font-face {
+        font-family: "Pacifico";
+        src: url("/fonts/Pacifico-Regular.ttf");
+      }
+      @font-face {
+        font-family: "PermanentMarker";
+        src: url("/fonts/PermanentMarker-Regular.ttf");
+      }
+
+      @font-face {
+        font-family: "SourceSansPro";
+        src: url("/fonts/SourceSansPro-Regular.ttf");
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "SourceSansPro";
+        src: url("/fonts/SourceSansPro-Italic.ttf");
+        font-weight: normal;
+        font-style: italic;
+      }
+      @font-face {
+        font-family: "SourceSansPro";
+        src: url("/fonts/SourceSansPro-Bold.ttf");
+        font-weight: bold;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "SourceSansPro";
+        src: url("/fonts/SourceSansPro-BoldItalic.ttf");
+        font-weight: bold;
+        font-style: italic;
+      }
+      @font-face {
+        font-family: "SourceSansPro";
+        src: url("/fonts/SourceSansPro-Light.ttf");
+        font-weight: 300;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "SourceSansPro";
+        src: url("/fonts/SourceSansPro-LightItalic.ttf");
+        font-weight: 300;
+        font-style: italic;
+      }
+
+      body {
+        font-family: "SourceSansPro", sans-serif;
+      }
+
+      .font-name {
+        font-family: "PermanentMarker", cursive;
+      }
+
+      .font-graph {
+        font-family: "Pacifico", cursive;
+      }
+    </style>
+  </head>
+  <body class="font-sans overflow-x-hidden relative bg-[#fbfbfb]">
+    <canvas id="chartCanvas" class="absolute left-0 top-0 pointer-events-none"
+    ></canvas>
+
+    <div class="relative z-10 w-full">
+      <slot />
+    </div>
+
+    <script>
+      // ==========================================
+      // CONFIGURATION PARAMETERS - ADJUST THESE
+      // ==========================================
+      const CONFIG = {
+        // Graph dimensions
+        baseGraphWidth: 0.07, // viewport width for base graph (all layers combined)
+        mobileGraphWidth: 0.11, // of viewport width on mobile devices (screens < 768px)
+
+        // Manual width adjustments for initial 300px after navbar (list of multipliers for each 20px step)
+        // Adjust these values to fine-tune the graph width in the transition zone
+        navbarTransitionWidths: [
+          5, 9, 6, 4, 3.5, 2.8, 1.9, 1.7, 1.5, 1.7, 2.1, 2.3, 2, 1,
+        ],
+
+        // Bump widths (percentage of screen width)
+        // When a section heading appears, that layer extends to this width
+        navbarBumpWidth: 89, // Navbar bump width percentage (minimum)
+        footerBumpWidth: 93, // Footer bump width percentage (minimum)
+        mobileNavbarBumpWidth: 89, // Navbar bump width on mobile devices (minimum)
+        mobileFooterBumpWidth: 89, // Footer bump width on mobile devices (minimum)
+        sectionBumpWidths: [70, 78, 83, 72, 68, 82], // Widths for content sections (cycles if more sections)
+        bumpPadding: 1.6, // Multiplier for bump height to add space around headings
+
+        // Colors (layers from bottom to top, last one is always black)
+        baseColors: ["#F1F0C0", "#B7E5DD", "#B1BCE6", "#9A86A4", "#644276"],
+        topAccentColor: "#000000", // Always black for outermost layer
+
+        // Width variation ranges
+        // The total graph width varies randomly within these ranges for visual interest
+        baseWidthVariation: { min: 0.7, max: 1.0 }, // base width for normal areas
+        bumpWidthVariation: { min: 0.92, max: 0.98 }, // bump width for bump areas
+
+        // Layer variation
+        // Each layer's thickness varies independently to look like real data
+        layerVariation: 0.8, // variation per layer
+        layerChangeIntervals: [15, 20, 18, 22, 17, 25], // Different change rates for each layer (cycles)
+
+        // Drawing parameters
+        pointDensity: 25, // Pixels between data points (lower = more detail, slower rendering)
+        widthChangeInterval: { min: 1, max: 2 }, // Randomly change total width
+        cleanFinishZone: 8, // Pixels at bottom for clean straight edge
+
+        // Layer proportions
+        // Controls how thick each layer is relative to others
+        // These are base values before variation is applied
+        topLayerProportion: 0.01, // Top accent layer (thinnest)
+        bottomLayerProportion: 0.45, // Bottom navbar layer (thickest)
+        layerProportionRange: 0.05, // Layers get thinner from bottom to mid
+      };
+
+      // ==========================================
+      // MAIN DRAWING FUNCTION
+      // ==========================================
+      function drawStackedChart() {
+        const canvas = document.getElementById("chartCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Dynamically detect all sections
+        const allSections = document.querySelectorAll(".section");
+        const numContentSections = allSections.length;
+        const numLayers = numContentSections + 3; // navbar + sections + footer + top accent
+        const isMobile = window.innerWidth < 768;
+
+        // Build color array (last one is always black)
+        const colors = [];
+        for (let i = 0; i < numLayers - 1; i++) {
+          if (i < CONFIG.baseColors.length) {
+            colors.push(CONFIG.baseColors[i]);
+          } else {
+            const hue = (i * 60) % 360;
+            colors.push(`hsl(${hue}, 40%, 60%)`);
+          }
+        }
+        colors.push(CONFIG.topAccentColor); // Top accent always black
+
+        // Build sections configuration
+        const sections = [
+          {
+            id: "navbar",
+            layer: 0,
+            bumpWidthPercent: isMobile
+              ? CONFIG.mobileNavbarBumpWidth
+              : CONFIG.navbarBumpWidth,
+            bumpFullSection: true,
+          },
+        ];
+
+        allSections.forEach((section, index) => {
+          sections.push({
+            id: section.id,
+            layer: index + 1,
+            bumpWidthPercent:
+              CONFIG.sectionBumpWidths[index % CONFIG.sectionBumpWidths.length],
+            bumpFullSection: false,
+          });
+        });
+
+        sections.push({
+          id: "footer",
+          layer: numContentSections + 1, // After all content sections
+          bumpWidthPercent: isMobile
+            ? CONFIG.mobileFooterBumpWidth
+            : CONFIG.footerBumpWidth,
+          bumpFullSection: true,
+        });
+
+        // Get section positions
+        const sectionData = sections.map((section) => {
+          const element = document.getElementById(section.id);
+          let bumpTop = element.offsetTop;
+          let bumpHeight = element.offsetHeight;
+
+          if (!section.bumpFullSection) {
+            const heading = element.querySelector("h2");
+            if (heading) {
+              const rect = heading.getBoundingClientRect();
+              const scrollTop =
+                window.pageYOffset || document.documentElement.scrollTop;
+              bumpTop = rect.top + scrollTop;
+              bumpHeight = heading.offsetHeight * CONFIG.bumpPadding;
+              // Center the bump around the heading
+              const extraSpace = bumpHeight - heading.offsetHeight;
+              bumpTop -= extraSpace / 2;
+              // Add 2px adjustment for odd-numbered sections (1st, 3rd, 5th, etc.) / dirty fix but works
+              if (section.layer !== undefined && section.layer % 2 != 0) {
+                bumpTop += 2;
+              }
+            }
+          }
+
+          return {
+            ...section,
+            height: element.offsetHeight,
+            top: element.offsetTop,
+            bumpTop,
+            bumpHeight,
+          };
+        });
+
+        // Calculate canvas dimensions with device pixel ratio for crisp rendering
+        const footerElement = document.getElementById("footer");
+        const totalHeight =
+          footerElement.offsetTop + footerElement.offsetHeight;
+        const canvasWidth =
+          window.innerWidth *
+          (isMobile ? CONFIG.mobileGraphWidth : CONFIG.baseGraphWidth);
+
+        // Use device pixel ratio for high DPI displays (retina, mobile, etc.)
+        const dpr = window.devicePixelRatio || 1;
+
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = totalHeight * dpr;
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = totalHeight + "px";
+
+        // Scale context to match device pixel ratio
+        ctx.scale(dpr, dpr);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Generate data points
+        const targetTotalWidth = canvasWidth;
+        const totalPoints = Math.ceil(totalHeight / CONFIG.pointDensity);
+        const layerHeights = Array.from({ length: numLayers }, () => []);
+
+        const lastChange = Array(numLayers).fill(0);
+        const currentVariations = Array(numLayers).fill(0);
+        let totalWidthMultiplier = 0.85;
+        let lastWidthChange = 0;
+        let nextWidthChangeIn = Math.floor(
+          CONFIG.widthChangeInterval.min +
+            Math.random() *
+              (CONFIG.widthChangeInterval.max - CONFIG.widthChangeInterval.min),
+        );
+        const footerEnd = footerElement.offsetTop + footerElement.offsetHeight;
+
+        // Calculate navbar end position for manual transition
+        const navbarSection = sectionData.find((s) => s.id === "navbar");
+        const navbarEnd = navbarSection
+          ? navbarSection.bumpTop + navbarSection.bumpHeight
+          : 0;
+        const transitionZoneEnd = navbarEnd + 300; // 300px after navbar
+
+        for (let i = 0; i < totalPoints; i++) {
+          const yPos = i * CONFIG.pointDensity;
+          const isInCleanZone = yPos >= footerEnd - CONFIG.cleanFinishZone;
+
+          // Check if in manual transition zone after navbar
+          const isInTransitionZone =
+            yPos > navbarEnd && yPos <= transitionZoneEnd;
+          let manualWidthMultiplier = null;
+
+          if (isInTransitionZone && !isInCleanZone) {
+            // Calculate which 20px step we're in (0-14 for 300px)
+            const pixelsAfterNavbar = yPos - navbarEnd;
+            const stepIndex = Math.floor(pixelsAfterNavbar / 20);
+            if (stepIndex < CONFIG.navbarTransitionWidths.length) {
+              manualWidthMultiplier = isMobile
+                ? CONFIG.navbarTransitionWidths[stepIndex] / 2
+                : CONFIG.navbarTransitionWidths[stepIndex];
+            }
+          }
+
+          // Check if in bump area
+          let inBumpArea = false;
+          for (const section of sectionData) {
+            if (
+              yPos >= section.bumpTop &&
+              yPos <= section.bumpTop + section.bumpHeight
+            ) {
+              inBumpArea = true;
+              break;
+            }
+          }
+
+          // Update total width multiplier with random intervals
+          // Use manual multiplier if in transition zone, otherwise use dynamic calculation
+          if (manualWidthMultiplier !== null) {
+            totalWidthMultiplier = manualWidthMultiplier;
+          } else if (
+            !isInCleanZone &&
+            !inBumpArea &&
+            i - lastWidthChange >= nextWidthChangeIn
+          ) {
+            totalWidthMultiplier =
+              CONFIG.baseWidthVariation.min +
+              Math.random() *
+                (CONFIG.baseWidthVariation.max - CONFIG.baseWidthVariation.min);
+            lastWidthChange = i;
+            nextWidthChangeIn = Math.floor(
+              CONFIG.widthChangeInterval.min +
+                Math.random() *
+                  (CONFIG.widthChangeInterval.max -
+                    CONFIG.widthChangeInterval.min),
+            );
+          } else if (!isInCleanZone && inBumpArea) {
+            // In bump areas, use bump variation but don't change drastically
+            if (i - lastWidthChange >= nextWidthChangeIn) {
+              totalWidthMultiplier =
+                CONFIG.bumpWidthVariation.min +
+                Math.random() *
+                  (CONFIG.bumpWidthVariation.max -
+                    CONFIG.bumpWidthVariation.min);
+              lastWidthChange = i;
+              nextWidthChangeIn = Math.floor(
+                CONFIG.widthChangeInterval.min +
+                  Math.random() *
+                    (CONFIG.widthChangeInterval.max -
+                      CONFIG.widthChangeInterval.min),
+              );
+            }
+          }
+
+          // Override in clean zone
+          if (isInCleanZone) {
+            totalWidthMultiplier = 1.0;
+          }
+
+          // Calculate layer proportions
+          let layerProportions = [];
+          let totalProportion = 0;
+
+          for (let layer = 0; layer < numLayers; layer++) {
+            // Update layer variation
+            const changeInterval =
+              CONFIG.layerChangeIntervals[
+                layer % CONFIG.layerChangeIntervals.length
+              ];
+            if (!isInCleanZone && i - lastChange[layer] >= changeInterval) {
+              currentVariations[layer] =
+                (Math.random() - 0.5) * CONFIG.layerVariation;
+              lastChange[layer] = i;
+            }
+            if (isInCleanZone) currentVariations[layer] = 0;
+
+            // Base proportion
+            let baseProp;
+            if (layer === numLayers - 1) {
+              baseProp = CONFIG.topLayerProportion;
+            } else {
+              const position = layer / (numLayers - 2);
+              baseProp =
+                CONFIG.bottomLayerProportion -
+                position * CONFIG.layerProportionRange;
+            }
+
+            const prop = Math.max(0.03, baseProp + currentVariations[layer]);
+            layerProportions.push(prop);
+            totalProportion += prop;
+          }
+
+          // Calculate widths
+          for (let layer = 0; layer < numLayers; layer++) {
+            let shouldBump = false;
+            let bumpWidth = 0;
+            let currentSection = null;
+
+            for (const section of sectionData) {
+              if (
+                yPos >= section.bumpTop &&
+                yPos <= section.bumpTop + section.bumpHeight &&
+                section.layer === layer
+              ) {
+                shouldBump = true;
+                currentSection = section;
+                bumpWidth =
+                  window.innerWidth *
+                  (section.bumpWidthPercent / 100) *
+                  totalWidthMultiplier;
+                break;
+              }
+            }
+
+            let width;
+            if (shouldBump) {
+              // Apply variation above the configured minimum width
+              const minWidth =
+                (window.innerWidth * currentSection.bumpWidthPercent) / 100;
+              // Remap totalWidthMultiplier to apply variation above minimum
+              const normalizedVariation =
+                (totalWidthMultiplier - CONFIG.bumpWidthVariation.min) /
+                (CONFIG.bumpWidthVariation.max - CONFIG.bumpWidthVariation.min);
+              // Apply up to 0.6% variation above the minimum
+              width = minWidth * (1 + normalizedVariation * 0.006);
+            } else {
+              width =
+                (layerProportions[layer] / totalProportion) *
+                targetTotalWidth *
+                totalWidthMultiplier;
+            }
+
+            layerHeights[layer].push(width);
+          }
+        }
+
+        // Add final point for clean bottom edge
+        for (let layer = 0; layer < numLayers; layer++) {
+          const lastWidth = layerHeights[layer][layerHeights[layer].length - 1];
+          layerHeights[layer].push(lastWidth);
+        }
+        const adjustedTotalPoints = totalPoints + 1;
+
+        // Draw layers
+        for (let layer = 0; layer < numLayers; layer++) {
+          ctx.fillStyle = colors[layer];
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+
+          // Calculate cumulative widths
+          const cumulativeWidths = [];
+          for (let i = 0; i < adjustedTotalPoints; i++) {
+            let cumWidth = 0;
+            for (let l = 0; l <= layer; l++) {
+              cumWidth += layerHeights[l][i];
+            }
+            cumulativeWidths.push(cumWidth);
+          }
+
+          // Draw top edge
+          ctx.moveTo(cumulativeWidths[0], 0);
+          for (let i = 0; i < adjustedTotalPoints; i++) {
+            const y =
+              i === adjustedTotalPoints - 1
+                ? totalHeight
+                : i * CONFIG.pointDensity;
+            ctx.lineTo(cumulativeWidths[i], y);
+          }
+
+          // Draw right edge
+          ctx.lineTo(cumulativeWidths[adjustedTotalPoints - 1], totalHeight);
+
+          // Draw bottom edge
+          if (layer === 0) {
+            ctx.lineTo(0, totalHeight);
+            ctx.lineTo(0, 0);
+          } else {
+            const prevCumulativeWidths = [];
+            for (let i = 0; i < adjustedTotalPoints; i++) {
+              let cumWidth = 0;
+              for (let l = 0; l < layer; l++) {
+                cumWidth += layerHeights[l][i];
+              }
+              prevCumulativeWidths.push(cumWidth);
+            }
+
+            for (let i = adjustedTotalPoints - 1; i >= 0; i--) {
+              const y =
+                i === adjustedTotalPoints - 1
+                  ? totalHeight
+                  : i * CONFIG.pointDensity;
+              ctx.lineTo(prevCumulativeWidths[i], y);
+            }
+          }
+
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+
+      // Initial render
+      window.addEventListener("load", () => setTimeout(drawStackedChart, 100));
+
+      // Use ResizeObserver for instant, robust resize detection
+      let lastWidth = window.innerWidth;
+      const resizeObserver = new ResizeObserver(() => {
+        if (window.innerWidth !== lastWidth) {
+          lastWidth = window.innerWidth;
+          drawStackedChart();
+        }
+      });
+      resizeObserver.observe(document.body);
+
+      // Handle orientation changes on mobile devices (modern API)
+      if (screen.orientation) {
+        screen.orientation.addEventListener("change", () => {
+          setTimeout(() => {
+            lastWidth = window.innerWidth;
+            drawStackedChart();
+          }, 100);
+        });
+      }
+    </script>
+  </body>
+</html>

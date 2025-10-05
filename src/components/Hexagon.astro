@@ -1,0 +1,101 @@
+---
+interface Props {
+  title?: string;
+  color?: string;
+  isCenter?: boolean;
+  isInvisible?: boolean;
+  hexId?: string;
+}
+
+const {
+  title,
+  color,
+  isCenter = false,
+  isInvisible = false,
+  hexId,
+} = Astro.props;
+---
+
+{
+  isInvisible ? (
+    <div class="hexagon-container h-[101px] w-[86px] sm:h-[121px] sm:w-[104px] lg:h-[175px] lg:w-[150px] invisible m-[5px]" />
+  ) : isCenter ? (
+    <div
+      class="hexagon-container h-[101px] w-[86px] sm:h-[121px] sm:w-[104px] lg:h-[175px] lg:w-[150px] m-[5px] relative cursor-pointer hover:scale-105"
+      data-hex-id="hex0"
+    >
+      <div class="hexagon-border">
+        <svg
+          class="hexagon-svg"
+          viewBox="0 0 100 115.47"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <polygon
+            points="50,0 99.5,28.87 99.5,86.6 50,115.47 0.5,86.6 0.5,28.87"
+            fill="none"
+            stroke="#000"
+            stroke-width="1"
+          />
+        </svg>
+      </div>
+      <div
+        class="hexagon overflow-hidden"
+        style="background-image: url('/portrait_long.jpg'); background-size: 100%; background-position: center 15%;"
+      />
+    </div>
+  ) : (
+    <div
+      class="hexagon-container h-[101px] w-[86px] sm:h-[121px] sm:w-[104px] lg:h-[175px] lg:w-[150px] m-[5px] relative cursor-pointer hover:scale-105"
+      data-hex-id={hexId}
+    >
+      <div class="hexagon-border">
+        <svg
+          class="hexagon-svg"
+          viewBox="0 0 100 115.47"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <polygon
+            points="50,0 99.5,28.87 99.5,86.6 50,115.47 0.5,86.6 0.5,28.87"
+            fill="none"
+            stroke="#000"
+            stroke-width="1"
+          />
+        </svg>
+      </div>
+      <div
+        class="hexagon grid place-items-center"
+        style={`background-color: ${color};`}
+      >
+        <p class="text-black text-lg sm:text-xl font-bold italic hexagon-text relative z-10">
+          {title}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .hexagon-container {
+    position: relative;
+  }
+
+  .hexagon-border {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .hexagon-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hexagon {
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+</style>

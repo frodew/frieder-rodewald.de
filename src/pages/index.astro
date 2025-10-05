@@ -1,0 +1,356 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Hexagon from "../components/Hexagon.astro";
+import { getCollection } from "astro:content";
+
+const hexagons = (await getCollection("hexagons")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const sections = (await getCollection("sections")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<Layout
+  title="Frieder Rodewald"
+  description="This is me: Frieder Rodewald. I am a phd-student, scientist, volunteer, data enthusiast, coder, and explorer. My main focus is on understanding what people do online and how to measure it."
+>
+  <!-- Navbar -->
+  <nav
+    id="navbar"
+    class="py-6 px-2 md:px-10 min-h-[80px] pl-[calc(7vw+1rem)] md:pl-[calc(7vw+2.5rem)]"
+  >
+    <div class="float-left hidden md:flex cursor-default">
+      <p
+        class="text-3xl text-black"
+        style="font-family: 'PermanentMarker', cursive !important;"
+      >
+        Frieder Rodewald
+      </p>
+    </div>
+    <div
+      class="flex float-left md:float-right pr-[10vw] lg:pr-[10vw] py-2 lg:py-1 font-bold"
+    >
+      <ul>
+        {
+          sections.map((section, index) => (
+            <>
+              <li class="inline">
+                <a
+                  href={`#${section.data.sectionId}`}
+                  class="px-4 md:px-5 text-base lg:text-lg text-black no-underline"
+                >
+                  {section.data.navTitle || section.data.title}
+                </a>
+              </li>
+              <li class="inline text-black">|</li>
+            </>
+          ))
+        }
+        <li class="inline">
+          <a
+            href="/documents/cv_rodewald.pdf"
+            download="cv_rodewald"
+            class="px-4 md:px-5 text-base lg:text-lg text-black no-underline"
+          >
+            CV
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hexagon Section -->
+  <article class="pl-[10vw] py-1 mt-1">
+    <section
+      class="min-h-[560px] mt-20 grid gap-3 place-items-start grid-rows-5 lg:grid-rows-1 lg:place-items-center grid-flow-row lg:grid-flow-col lg:grid-cols-8"
+    >
+      <div
+        class="row-span-2 sm:row-span-3 lg:col-span-3 w-[300px] overflow-visible m-[0_auto]"
+      >
+        <!-- Top Row -->
+        <div
+          class="inline-flex ml-[-50px] sm:ml-[-60px] mt-[-32px] lg:ml-[-80px] lg:mt-[-48px] overflow-hidden even:ml-[1px]"
+        >
+          <Hexagon isInvisible={true} />
+          <Hexagon
+            title={hexagons[1].data.title}
+            color={hexagons[1].data.color}
+            hexId="hexTL"
+          />
+          <Hexagon
+            title={hexagons[2].data.title}
+            color={hexagons[2].data.color}
+            hexId="hexTR"
+          />
+        </div>
+
+        <!-- Middle Row -->
+        <div
+          class="inline-flex mt-[-28px] sm:mt-[-32px] lg:ml-[-75px] lg:mt-[-48px] overflow-hidden even:ml-[1px]"
+        >
+          <Hexagon
+            title={hexagons[3].data.title}
+            color={hexagons[3].data.color}
+            hexId="hexCL"
+          />
+          <Hexagon isCenter={true} />
+          <Hexagon
+            title={hexagons[4].data.title}
+            color={hexagons[4].data.color}
+            hexId="hexCR"
+          />
+        </div>
+
+        <!-- Bottom Row -->
+        <div
+          class="inline-flex ml-[-50px] sm:ml-[-60px] mt-[-28px] sm:mt-[-32px] lg:ml-[-80px] lg:mt-[-48px] overflow-hidden even:ml-[1px]"
+        >
+          <Hexagon isInvisible={true} />
+          <Hexagon
+            title={hexagons[5].data.title}
+            color={hexagons[5].data.color}
+            hexId="hexBL"
+          />
+          <div
+            class="h-[99px] w-[90px] sm:h-[121px] sm:w-[110px] lg:h-[175px] lg:w-[150px] m-[5px] relative"
+          >
+            <p
+              class="absolute text-center cursor-default text-xs leading-[0.6rem] top-[25px] left-[15px] rotate-[-30deg] sm:text-sm sm:leading-[0.6rem] sm:top-[30px] sm:left-[20px] md:top-[40px] md:left-[30px] md:leading-3 lg:top-[50px] lg:left-[40px] lg:rotate-[-35deg] lg:text-base lg:leading-4 z-10"
+            >
+              <span class="relative text-black">
+                click <br />around
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Display -->
+      <div
+        class="row-span-3 sm:row-span-2 m-[0_auto] lg:mt-0 lg:col-start-5 lg:col-span-7 lg:m-3 xl:col-start-5"
+      >
+        <div
+          class="m-3 p-3 border-2 border-black rounded-md text-md md:text-xl max-h-[350px] md:max-h-screen overflow-scroll bg-[#fbfbfb]"
+        >
+          {
+            hexagons.map(async (hex, index) => {
+              const { Content } = await hex.render();
+              const hexId =
+                index === 0
+                  ? "hex0"
+                  : index === 1
+                    ? "hexTL"
+                    : index === 2
+                      ? "hexTR"
+                      : index === 3
+                        ? "hexCL"
+                        : index === 4
+                          ? "hexCR"
+                          : "hexBL";
+              return (
+                <div
+                  class={`hexagon-content text-black ${hexId === "hex0" ? "" : "hidden"}`}
+                  data-content={hexId}
+                >
+                  {index === 0 ? (
+                    <>
+                      <h2 class="font-bold text-3xl md:text-6xl text-black">
+                        {hex.data.title}
+                      </h2>
+                      <div class="mt-5 text-black prose max-w-none prose-a:text-blue-300">
+                        <Content />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 class="font-bold text-2xl mb-2 text-black">
+                        {hex.data.title}
+                      </h3>
+                      <div class="text-black prose max-w-none prose-a:text-blue-300">
+                        <Content />
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })
+          }
+          <div class="hexagon-content hidden text-black" data-content="error">
+            <p class="text-black">
+              There seems to be a technical issue. <br />
+              Just click on one hexagon and it should be resolved. <br />
+              Otherwise I would be glad about a short e-mail :D
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Sections -->
+    {
+      sections.map(async (section) => {
+        const { Content } = await section.render();
+        return (
+          <section
+            id={section.data.sectionId}
+            class="section py-6 px-4 pl-1em"
+            style={`min-height: ${section.data.minHeight}; background-color: ${section.data.color}05;`}
+          >
+            <h2 class="mb-8 lg:mb-12 font-bold text-2xl md:text-3xl text-black">
+              {section.data.title}
+            </h2>
+            <div class="text-md md:text-lg xl:text-xl text-black w-[90%] max-w-4xl">
+              <div class="prose prose-lg max-w-none prose-a:text-blue-300">
+                <Content />
+              </div>
+            </div>
+          </section>
+        );
+      })
+    }
+  </article>
+
+  <!-- Footer -->
+  <footer id="footer" class="py-10 px-10 min-h-[120px] pl-[calc(7vw+2.5rem)]">
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 gap-6 text-black text-base md:text-lg lg:text-xl"
+    >
+      <div class="text-center md:text-left m-auto">
+        <a
+          href="https://github.com/FriederRodewald"
+          class="text-black block mb-1"
+          target="_blank"
+        >
+          <i class="fa-brands fa-github w-6 inline-block"></i> Github
+        </a>
+        <a
+          href="https://bsky.app/profile/frodewald.bsky.social"
+          class="text-black block mb-1"
+          target="_blank"
+        >
+          <i class="fa-solid fa-cloud w-6 inline-block"></i> Blue Sky
+        </a>
+        <a
+          href="https://www.linkedin.com/in/frieder-rodewald"
+          class="text-black block"
+          target="_blank"
+        >
+          <i class="fa-brands fa-linkedin w-6 inline-block"></i> LinkedIn
+        </a>
+      </div>
+      <div class="text-center md:text-left m-auto">
+        <p><i class="fa-solid fa-envelope"></i> info@frieder-rodewald.de</p>
+      </div>
+      <div class="text-center md:text-left m-auto">
+        <button id="legalToggle" class="cursor-pointer">
+          <i class="fa-solid fa-gavel"></i> Privacy & Legal
+        </button>
+      </div>
+    </div>
+
+    <!-- Legal Modal -->
+    <div
+      id="legalModal"
+      class="hidden fixed bottom-10 right-[5%] w-[90%] border-2 border-black rounded p-3 bg-[#fbfbfb] text-black text-justify shadow-[0px_0px_600px_300px_rgba(0,0,0,0.7)] z-50 max-h-[70%] overflow-scroll"
+    >
+      <h4 class="font-bold pb-2 text-base md:text-lg">Privacy and Legal</h4>
+      <button
+        id="closeModal"
+        class="absolute top-3 right-3 border-2 border-red-500 rounded leading-5 px-2 text-red-500 hover:bg-red-500 hover:text-[#fbfbfb]"
+      >
+        X
+      </button>
+      <p class="text-base md:text-lg">
+        I created this website and its content entirely, including all graphics,
+        photos, texts, and everything else you see. If you experience any
+        issues, please do not hesitate to contact me. I also appreciate any
+        suggestions or ideas for improvement. <br /><br />
+        Everything here (fonts, icons, etc.) is self-hosted, so Google and others
+        do not track you here. I only track the number of visitors to my site without
+        any additional information (so no IP addresses or anything else). It's nothing
+        fancy, just to know how much traffic I get. Again, please get in touch with
+        me if you have questions or issues.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Hexagon interaction
+    document.addEventListener("DOMContentLoaded", () => {
+      const hexagons = document.querySelectorAll("[data-hex-id]");
+      const contents = document.querySelectorAll(".hexagon-content");
+      let currentSelected = "hex0";
+
+      hexagons.forEach((hex) => {
+        hex.addEventListener("click", () => {
+          const hexId = hex.getAttribute("data-hex-id");
+
+          // Hide all contents
+          contents.forEach((content) => {
+            content.classList.add("hidden");
+          });
+
+          // Show selected content
+          const targetContent = document.querySelector(
+            `[data-content="${hexId}"]`,
+          );
+          if (targetContent) {
+            targetContent.classList.remove("hidden");
+          }
+
+          // Update opacity for hexagons (visual feedback)
+          hexagons.forEach((h) => {
+            const text = h.querySelector(".hexagon-text");
+            if (text) {
+              if (h === hex) {
+                h.style.opacity = "0.8";
+                text.classList.add("!text-[#fbfbfb]");
+                text.classList.add(
+                  "!drop-shadow-[0_0px_1.2px_rgba(0,0,0,0.8)]",
+                );
+              } else {
+                h.style.opacity = "1";
+                text.classList.remove("!text-[#fbfbfb]");
+                text.classList.remove(
+                  "!drop-shadow-[0_0px_1.2px_rgba(0,0,0,0.8)]",
+                );
+              }
+            }
+          });
+
+          currentSelected = hexId;
+        });
+      });
+
+      // Legal modal
+      const legalToggle = document.getElementById("legalToggle");
+      const legalModal = document.getElementById("legalModal");
+      const closeModal = document.getElementById("closeModal");
+
+      legalToggle?.addEventListener("click", () => {
+        legalModal?.classList.toggle("hidden");
+      });
+
+      closeModal?.addEventListener("click", () => {
+        legalModal?.classList.add("hidden");
+      });
+    });
+  </script>
+
+  <style>
+    .hexagon {
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+
+    .hexagon-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hexagon-svg polygon {
+      vector-effect: non-scaling-stroke;
+    }
+  </style>
+</Layout>
