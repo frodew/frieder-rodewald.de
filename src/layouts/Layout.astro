@@ -242,7 +242,7 @@ const {
           (isMobile ? CONFIG.mobileGraphWidth : CONFIG.baseGraphWidth);
 
         // Use device pixel ratio for high DPI displays (retina, mobile, etc.)
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = (window.devicePixelRatio || 1) * 2;
 
         canvas.width = window.innerWidth * dpr;
         canvas.height = totalHeight * dpr;
