@@ -4,4 +4,4 @@ color: "#644276"
 order: 5
 ---
 
-It is second nature for me to learn and explore new things constantly. Whether it be (quantitative) methods, programming, or scientific research, I rarely have a day without a discovery. Apart from that, I am eager to learn new languages (currently Italian), improve my guitar skills, and perfect my lasagna.
+I rarely have a day without a discovery. My love to learn and explore encompasses the useful and the not-so-useful: Automating a workflow that was bugging me, ricing my Fedora/Hyprland/Neovim/Kitty/... setup, learning new languages (currently Italian), improve my guitar and trumpet skills, or play with my custom self-build keyboard [fro-dux v1](https://github.com/frodew/fro-dux).

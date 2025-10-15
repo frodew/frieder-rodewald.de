@@ -195,7 +195,7 @@ const sections = (await getCollection("sections")).sort(
           <section
             id={section.data.sectionId}
             class="section py-6 px-4 pl-1em"
-            style={`min-height: ${section.data.minHeight}; background-color: ${section.data.color}05;`}
+            style={`background-color: ${section.data.color}05;`}
           >
             <h2 class="mb-8 lg:mb-12 font-bold text-2xl md:text-3xl text-black">
               {section.data.title}
@@ -218,7 +218,7 @@ const sections = (await getCollection("sections")).sort(
     >
       <div class="text-center md:text-left m-auto">
         <a
-          href="https://github.com/FriederRodewald"
+          href="https://github.com/frodew"
           class="text-black block mb-1"
           target="_blank"
         >
@@ -262,10 +262,11 @@ const sections = (await getCollection("sections")).sort(
         X
       </button>
       <p class="text-base md:text-lg">
-        I created this website and its content entirely, including all graphics,
-        photos, texts, and everything else you see. If you experience any
-        issues, please do not hesitate to contact me. I also appreciate any
-        suggestions or ideas for improvement. <br /><br />
+        I created this website and its content entirely (with some help of AI in
+        the most recent version), including all graphics, photos, texts, and
+        everything else you see. If you experience any issues, please do not
+        hesitate to contact me. I also appreciate any suggestions or ideas for
+        improvement. <br /><br />
         Everything here (fonts, icons, etc.) is self-hosted, so Google and others
         do not track you here. I only track the number of visitors to my site without
         any additional information (so no IP addresses or anything else). It's nothing
@@ -306,14 +307,12 @@ const sections = (await getCollection("sections")).sort(
               if (h === hex) {
                 h.style.opacity = "0.8";
                 text.classList.add("!text-[#fbfbfb]");
-                text.classList.add(
-                  "!drop-shadow-[0_0px_1.2px_rgba(0,0,0,0.8)]",
-                );
+                text.classList.add("!drop-shadow-[0_0_1.2px_rgba(0,0,0,0.8)]");
               } else {
                 h.style.opacity = "1";
                 text.classList.remove("!text-[#fbfbfb]");
                 text.classList.remove(
-                  "!drop-shadow-[0_0px_1.2px_rgba(0,0,0,0.8)]",
+                  "!drop-shadow-[0_0_1.2px_rgba(0,0,0,0.8)]",
                 );
               }
             }

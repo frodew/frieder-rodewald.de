@@ -60,11 +60,12 @@
 }
 
 .prose a {
-  color: #93c5fd;
+  color: #8594cd;
   text-decoration: none;
 }
 
 .prose a:hover {
+  color: #263980;
   text-decoration: none;
 }
 
@@ -86,8 +87,6 @@
 
 .prose li {
   margin-bottom: 1rem;
-  display: flex;
-  align-items: flex-start;
   line-height: 1.75;
 }
 

@@ -4,13 +4,12 @@ sectionId: "research"
 navTitle: "Research"
 order: 1
 color: "#B7E5DD"
-minHeight: "515px"
 ---
 
-*This section is aimed to present my latest (published) research. For now, I present my general research interests as I currently have several ongoing projects.*
+*This section is aimed to present my latest (published) research. For now, I present my general research interests as I currently have several ongoing projects, but no publication :)*
 
 ---
 
-My main interest is understanding what people do online, especially regarding their privacy. While we already know that privacy concerns are often (but not always) related to privacy behavior, most research misses the importance of researching what people actually do online. For that, more than asking people about their behavior is required; we need their usage data. I intend to show this by leveraging data donation, which allows survey participants to donate their usage data to research in a privacy-preserving manner. Crucially, such an approach must respect the multidimensionality of privacy and its context. If this sounds interesting to you, feel free to reach out to me. I will also present this project at the [Data Donation Symposium 2024](https://datadonation.eu/community/symposium-2024) in Amsterdam.
+My main interest lies in studying what people do online. Analyzing what we do on online platforms such as YouTube, Instagram, or LinkedIn helps us understand how people think and why they behave as they do. I specifically research to what extent people accurately report their online behavior and how they manage their privacy. Together with [Nina Osenbrügge](https://www.mzes.uni-mannheim.de/en/people/detail/nina-osenbruegge), I also work to understand how passive content consumption impacts radicalisation on YouTube.
 
-For another project that I already presented at the Transforming Care Conference, I investigate how German parliamentarians talk differently about long-term care depending on their personal characteristics, e.g., their gender or age. Methodologically, I am using word embeddings in connection with a newly developed method called [embedding regression](https://github.com/prodriguezsosa/conText). I find that MP's personal characteristics matter when they talk about long-term care. Equal representation in parliament, thus makes a substantial difference when it comes to morally loaded topics, such as long-term care.
+For most of my research, I rely on [data donation](https://github.com/frodew/workshop_spp_annual_meeting) as a method to collect people's online behavior. This innovative privacy-preserving collection method for digital trace data relies on the fact that people can request and download their information from any online platform with a couple of clicks. While that sound nice in principle, there are still many challenges to be tackled, and I'm part of that journey; particularly focusing on how we can [increase participation in data donation studies](https://osf.io/kuqsm) and [integrate it into large-scale infrastructure](https://data-donation-science.de/).

@@ -19,7 +19,18 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Frieder Rodewald" />
     <meta name="description" content={description} />
-    <link rel="icon" href="/logo.gif" />
+
+    <!-- Favicons - multiple formats for best compatibility -->
+    <!-- Animated GIF favicon (modern browsers) -->
+    <link rel="icon" type="image/gif" href="/favicon.gif" />
+
+    <!-- PNG fallbacks for browsers that don't support GIF or have animations disabled -->
+    <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+
+    <!-- Apple Touch Icon for iOS home screen -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"

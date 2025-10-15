@@ -1,7 +1,7 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, z } from "astro:content";
 
 const hexagonsCollection = defineCollection({
-  type: 'content',
+  type: "content",
   schema: z.object({
     title: z.string(),
     color: z.string(),
@@ -10,14 +10,13 @@ const hexagonsCollection = defineCollection({
 });
 
 const sectionsCollection = defineCollection({
-  type: 'content',
+  type: "content",
   schema: z.object({
     title: z.string(),
     sectionId: z.string(),
     navTitle: z.string().optional(),
     order: z.number(),
     color: z.string(),
-    minHeight: z.string().default('300px'),
   }),
 });
 
